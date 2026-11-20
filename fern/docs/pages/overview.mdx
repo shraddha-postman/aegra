@@ -1,0 +1,99 @@
+---
+title: "aegra"
+subtitle: "Open source alternative to LangGraph Platform (now LangSmith Deployments) - Self-hosted AI agent backend with FastAPI and PostgreSQL. Zero vendor lock-in, full control over your agent infrastructure."
+---
+
+Aegra
+
+  Self-hosted LangSmith Deployments alternative. Your infrastructure, your rules.
+
+  
+
+  
+
+  
+
+  
+
+  
+
+---
+
+Aegra is a drop-in replacement for LangSmith Deployments. Use the same LangGraph SDK, same APIs, but run it on your own infrastructure with PostgreSQL persistence.
+
+**Works with:** [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) | [LangGraph Studio](https://github.com/langchain-ai/langgraph-studio) | [AG-UI / CopilotKit](https://github.com/CopilotKit/CopilotKit)
+
+> **🆕 New: Agent Protocol v2 streaming.** Thread-scoped SSE with content-block events, per-subgraph lifecycle, and native human-in-the-loop resume — the wire the latest LangGraph SDKs and `useStream` target. Enabled by default. See the [streaming guide](https://docs.aegra.dev/guides/streaming).
+
+## 🚀 Quick Start
+
+### Using the CLI (Recommended)
+
+**Prerequisites:** Python 3.12+, Docker or Podman (for PostgreSQL; Docker is the default)
+
+```bash
+pip install aegra-cli
+
+# Initialize a new project — prompts for location, template, and name
+aegra init
+
+# Follow the printed next steps:
+cd <your-project>
+cp .env.example .env     # Add your OPENAI_API_KEY to .env
+uv sync                  # Install dependencies
+uv run aegra dev         # Start PostgreSQL + dev server
+```
+
+> **Note:** Always install `aegra-cli` directly — not the `aegra` meta-package. The `aegra` package on PyPI is a convenience wrapper that does not support version pinning.
+
+### From Source
+
+```bash
+git clone https://github.com/aegra/aegra.git
+cd aegra
+cp .env.example .env
+# Add your OPENAI_API_KEY to .env
+
+docker compose up
+```
+
+Open [http://localhost:2026/docs](http://localhost:2026/docs) to explore the API.
+
+Your existing LangGraph code works without changes:
+
+```python
+from langgraph_sdk import get_client
+
+client = get_client(url="http://localhost:2026")
+
+assistant = await client.assistants.create(graph_id="agent")
+thread = await client.threads.create()
+
+async for chunk in client.runs.stream(
+    thread_id=thread["thread_id"],
+    assistant_id=assistant["assistant_id"],
+    input={"messages": [{"type": "human", "content": "Hello!"}]},
+):
+    print(chunk)
+```
+
+## 🔥 Why Aegra?
+
+*Based on [LangChain pricing](https://www.langchain.com/pricing) as of February 2026. An enterprise tier with self-hosting is also available at custom pricing.*
+
+| | LangSmith Deployments | Aegra |
+|:--|:--|:--|
+| **Deploy agents** | Local dev only (Free), paid cloud (Plus) | Free, unlimited |
+| **Custom auth** | Not available (Free), available (Plus) | Python handlers (JWT/OAuth/Firebase) |
+| **Scheduled cron jobs** | Not available (Free), available (Plus) | Built-in, free |
+| **Self-hosted** | Enterprise only (license key required) | Always (Apache 2.0) |
+| **Own database** | Managed only (Free/Plus), bring your own (Enterprise) | Bring your own Postgres |
+| **Tracing** | LangSmith only | Any OTLP backend (Langfuse, Phoenix, etc.) |
+| **Data residency** | LangChain cloud (Free/Plus), your infrastructure (Enterprise) | Your infrastructure |
+| **SDK** | LangGraph SDK | Same LangGraph SDK |
+
+## ✨ Features
+
+---
+
+Source: shraddha-postman/aegra · Licence: Apache-2.0 · Commit b907dab
